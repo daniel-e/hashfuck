@@ -11,13 +11,18 @@ use argparse::StoreTrue;
 
 use std::collections::HashMap;
 use crypto::sha2::Sha256;
+use crypto::sha2::Sha512;
+use crypto::md5::Md5;
 use crypto::digest::Digest;
+use std::iter::FromIterator;
 
 fn split_into_hex_bytes(s: &str) -> Vec<String> {
-    let foo = s.chars().collect::<Vec<_>>();
-    let bar = foo.chunks(2).collect::<Vec<_>>();
-    let baz = bar.iter().map(|&x| x.iter().collect::<String>()).collect::<Vec<_>>();
-    baz
+    s
+        .chars()
+        .collect::<Vec<char>>()
+        .chunks(2)
+        .map(|x| String::from_iter(x.iter()))
+        .collect::<Vec<_>>()
 }
 
 fn hex_to_brainfuck(hash: &str) -> String {
@@ -25,18 +30,16 @@ fn hex_to_brainfuck(hash: &str) -> String {
         (0, ">"), (1, "<"), (2, "+"), (3, "-"), (4, "."), (5, "."), (6, "["), (7, "]"),
     ].iter().cloned().collect();
 
-    let baz = split_into_hex_bytes(hash);
-    let ops = baz.iter().map(|hex| i32::from_str_radix(hex, 16)).map(|dec| dec.unwrap() % 8).collect::<Vec<_>>();
-    let bf = ops.iter().map(|op| *bf_ops.get(&op.clone()).unwrap()).collect::<String>();
-    bf
+    let hex = split_into_hex_bytes(hash);
+    let ops = hex.iter().map(|hex| i32::from_str_radix(hex, 16)).map(|dec| dec.unwrap() % 8).collect::<Vec<_>>();
+    ops.iter().map(|op| *bf_ops.get(&op.clone()).unwrap()).collect::<String>()
 }
 
 fn contains_ff(s: &str) -> bool {
     split_into_hex_bytes(&s).into_iter().any(|x| x == "ff")
 }
 
-fn sha256_rotate_until_ff(origin_hash: &str) -> String {
-    let mut hasher = Sha256::new();
+fn hash_until_ff<HashAlg: Digest>(origin_hash: &str, mut hasher: HashAlg) -> String {
     let mut result = String::new();
     let mut current_hash: String = origin_hash.to_string();
 
@@ -83,14 +86,15 @@ fn main() {
         let origin_hash = splitted[1];
 
         let full_hash = match algorithm {
-            "sha256" => sha256_rotate_until_ff(origin_hash),
-            _ => panic!("Not implemented")
+            "md5" => hash_until_ff(origin_hash, Md5::new()),
+            "sha256" => hash_until_ff(origin_hash, Sha256::new()),
+            "sha512" => hash_until_ff(origin_hash, Sha512::new()),
+            _ => panic!("Hashing algorithm not implemented")
         };
 
         println!("Original program: {}", program);
         println!("Hash algorithm: {}", algorithm);
         println!("Hash: {}", origin_hash);
-
         println!("Full hash: {}", full_hash);
 
         let bf = hex_to_brainfuck(&full_hash);
