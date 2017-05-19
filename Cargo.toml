@@ -1,0 +1,15 @@
+[package]
+name = "hashfuck"
+version = "0.1.0"
+authors = ["wITTus"]
+
+[features]
+default = []
+
+# You'll need to remove the feature line in .cargo/registry/src/github.com-1ecc6299db9ec823/brainfuck-0.2.0/src/lib.rs
+interpreter = ["brainfuck"]
+
+[dependencies]
+argparse = "*"
+rust-crypto = "*"
+brainfuck = { version = "0.2.0", optional = true }
