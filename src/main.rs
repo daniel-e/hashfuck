@@ -10,11 +10,12 @@ use argparse::{ArgumentParser, Store};
 use argparse::StoreTrue;
 
 use std::collections::HashMap;
+use std::iter::FromIterator;
+
 use crypto::sha2::Sha256;
 use crypto::sha2::Sha512;
 use crypto::md5::Md5;
 use crypto::digest::Digest;
-use std::iter::FromIterator;
 
 fn split_into_hex_bytes(s: &str) -> Vec<String> {
     s
@@ -42,21 +43,17 @@ fn contains_ff(s: &str) -> bool {
 fn hash_until_ff<HashAlg: Digest>(origin_hash: &str, mut hasher: HashAlg) -> String {
     let mut result = String::new();
     let mut current_hash: String = origin_hash.to_string();
-
     loop {
         hasher.input_str(&current_hash);
         let hash = hasher.result_str();
-        hasher.reset();
-        println!("hash: {:?}", &hash);
         if contains_ff(&hash) {
             let rest = split_into_hex_bytes(&hash).into_iter().take_while(|hex| hex != "ff").collect::<String>();
-            println!("rest: {:?}", &rest);
             result += &rest;
             break;
-        } else {
-            result += &hash;
         }
+        result += &hash;
         current_hash = hash;
+        hasher.reset();
     }
     result
 }
@@ -64,6 +61,31 @@ fn hash_until_ff<HashAlg: Digest>(origin_hash: &str, mut hasher: HashAlg) -> Str
 #[cfg(feature = "interpreter")]
 fn interpret(bf: String) {
     brainfuck::eval_string(&bf).expect("Interpreter error");
+}
+
+
+fn hashfuck(program: String) -> String {
+    let splitted: Vec<&str> = program.split(":").collect::<Vec<_>>();
+    match splitted.len() {
+        2 => {
+            let algorithm = splitted[0];
+            let origin_hash = splitted[1];
+            let full_hash = match algorithm {
+                "md5" => hash_until_ff(origin_hash, Md5::new()),
+                "sha256" => hash_until_ff(origin_hash, Sha256::new()),
+                "sha512" => hash_until_ff(origin_hash, Sha512::new()),
+                _ => panic!("Hashing algorithm not implemented")
+            };
+
+            println!("Original program: {}", program);
+            println!("Hash algorithm: {}", algorithm);
+            println!("Hash: {}", origin_hash);
+            println!("Extended hash sequence: {}", full_hash);
+
+            hex_to_brainfuck(&full_hash)
+        }
+        _ => panic!("Format is algorithm:hash")
+    }
 }
 
 fn main() {
@@ -80,27 +102,14 @@ fn main() {
         ap.parse_args_or_exit();
     }
 
-    if !program.is_empty() {
-        let splitted: Vec<&str> = program.split(":").collect::<Vec<_>>();
-        let algorithm = splitted[0];
-        let origin_hash = splitted[1];
+    match program.is_empty() {
+        false => {
+            let bf = hashfuck(program);
+            println!("Brainfuck: {}", bf);
 
-        let full_hash = match algorithm {
-            "md5" => hash_until_ff(origin_hash, Md5::new()),
-            "sha256" => hash_until_ff(origin_hash, Sha256::new()),
-            "sha512" => hash_until_ff(origin_hash, Sha512::new()),
-            _ => panic!("Hashing algorithm not implemented")
-        };
-
-        println!("Original program: {}", program);
-        println!("Hash algorithm: {}", algorithm);
-        println!("Hash: {}", origin_hash);
-        println!("Full hash: {}", full_hash);
-
-        let bf = hex_to_brainfuck(&full_hash);
-        println!("Brainfuck: {}", bf);
-
-        #[cfg(feature = "interpreter")]
-        interpret(bf);
+            #[cfg(feature = "interpreter")]
+            interpret(bf);
+        }
+        true => { /* noop */ }
     }
 }
