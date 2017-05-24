@@ -35,7 +35,7 @@ It is unknown if "Hello World!" is possible at all.
 
 The "easy" solution would've been to find an input hash which, after rehashing, yields a hash that contains the whole "Hello World!" program.
 
-The shortest "Hello World!" I've seen ([here](https://www.reddit.com/r/tinycode/comments/1oqgwm/shortest_hello_world_brainfuck_code/cdsn4mb/)) so far is:
+The shortest "Hello World!" in Brainfuck I've seen ([here](https://www.reddit.com/r/tinycode/comments/1oqgwm/shortest_hello_world_brainfuck_code/cdsn4mb/)) so far is:
 
 ```--[+++++++<---->>-->+>+>+<<<<]<.>++++[-<++++>>->--<<]>>-.>--..>+.<<<.<<-.>>+>->>.+++[.<]```
 
