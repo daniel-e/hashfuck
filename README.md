@@ -16,8 +16,10 @@ sha256:93f74a28b6d648aec2170182353d0f0fc69072ec1581e49a53cc2f1533455106
 
 2. Bytes from a hash are mapped to Brainfuck code. E.g.:
 
+```
    0x93 = 147
 147 % 8 = 3
+```
 
 Brainfuck has 8 instructions. A result of 3 yields the Brainfuck instruction '-'.
 
@@ -31,7 +33,7 @@ It is unknown if "Hello World!" is possible at all.
 
 The "easy" solution would've been to find an input hash which, after rehashing, yields a hash that contains the whole "Hello World!" program.
 
-The shortest "Hello World!" [https://www.reddit.com/r/tinycode/comments/1oqgwm/shortest_hello_world_brainfuck_code/cdsn4mb/](I've seen) so far is:
+The shortest "Hello World!" [I've seen](https://www.reddit.com/r/tinycode/comments/1oqgwm/shortest_hello_world_brainfuck_code/cdsn4mb/) so far is:
 
 ```--[+++++++<---->>-->+>+>+<<<<]<.>++++[-<++++>>->--<<]>>-.>--..>+.<<<.<<-.>>+>->>.+++[.<]```
 
