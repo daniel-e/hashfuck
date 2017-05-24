@@ -44,3 +44,23 @@ Which is 88 characters long. Therefore, "Hello World!" in Brainfuck does not fit
 
 One would have to find a hash, which yields after re-hashing the rest of the program. Even if such a splitted solution exists, it's highly unprobably to be found.
 
+# Reference Implementation
+
+## Simple build
+
+```bash
+cargo build --release
+```
+
+## With Brainfuck interpreter 
+
+```bash
+cargo build --release --features interpreter
+```
+
+## Invocation Example
+
+```bash
+target/release/hashfuck -i sha256:93f74a28b6d648aec2170182353d0f0fc69072ec1581e49a53cc2f1533455106
+```
+
