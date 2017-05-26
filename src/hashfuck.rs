@@ -50,7 +50,7 @@ fn hash_until_ff<HashAlg: Digest>(origin_hash: &str, mut hasher: HashAlg) -> Str
 }
 
 pub fn compile_hashfuck(program: String) -> String {
-    let splitted: Vec<&str> = program.split(":").collect::<Vec<_>>();
+    let splitted: Vec<&str> = program.split(":").collect();
     match splitted.len() {
         2 => {
             let algorithm = splitted[0];
