@@ -14,7 +14,7 @@ fn split_into_hex_bytes(s: &str) -> Vec<String> {
         .collect::<Vec<char>>()
         .chunks(2)
         .map(|x| String::from_iter(x.iter()))
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 fn hex_to_brainfuck(hash: &str) -> String {
