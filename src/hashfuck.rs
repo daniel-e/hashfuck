@@ -1,6 +1,5 @@
 extern crate crypto;
 
-use std::collections::HashMap;
 use std::iter::FromIterator;
 
 use self::crypto::digest::Digest;
@@ -18,17 +17,15 @@ fn split_into_hex_bytes(s: &str) -> Vec<String> {
 }
 
 fn hex_to_brainfuck(hash: &str) -> String {
-    let bf_ops: HashMap<i32, &str> = [
-        (0, ">"), (1, "<"), (2, "+"), (3, "-"), (4, "."), (5, "."), (6, "["), (7, "]"),
-    ].iter().cloned().collect();
+    let bf_ops = vec![">", "<", "+", "-", ".", ".", "[", "]"];
 
-    let hex = split_into_hex_bytes(hash);
-    let ops = hex.iter().map(|hex| i32::from_str_radix(hex, 16)).map(|dec| dec.unwrap() % 8).collect::<Vec<_>>();
-    ops.iter().map(|op| *bf_ops.get(&op.clone()).unwrap()).collect::<String>()
+    split_into_hex_bytes(hash).iter()
+        .map(|hex| bf_ops[usize::from_str_radix(hex, 16).expect("invalid hash") % 8])
+        .collect()
 }
 
 fn contains_ff(s: &str) -> bool {
-    split_into_hex_bytes(&s).into_iter().any(|x| x == "ff")
+    split_into_hex_bytes(s).into_iter().any(|x| x == "ff")
 }
 
 fn hash_until_ff<HashAlg: Digest>(origin_hash: &str, mut hasher: HashAlg) -> String {
@@ -70,5 +67,15 @@ pub fn compile_hashfuck(program: String) -> String {
             hex_to_brainfuck(&full_hash)
         }
         _ => panic!("Format is algorithm:hash")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use hashfuck::hex_to_brainfuck;
+
+    #[test]
+    fn test_hex_to_brainfuck() {
+        assert_eq!(hex_to_brainfuck("93f74a28b6d648aec2170182353d0f0fc69072ec1581e49a53cc2f1533455106"), "-]+>[[>[+]<+..]][>+..<.+-.].-.<[");
     }
 }
