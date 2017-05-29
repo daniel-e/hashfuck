@@ -1,6 +1,6 @@
 # About
 
-Hashfuck is a programming language which was inspired from the various Brainfuck derivatives found on [https://esolangs.org]. Hashfuck's goal was to make the hardest possible language to program in.
+Hashfuck is a programming language which was inspired from the various Brainfuck derivatives found on https://esolangs.org. Hashfuck's goal was to make the hardest possible language to program in.
 
 # Example program
 
